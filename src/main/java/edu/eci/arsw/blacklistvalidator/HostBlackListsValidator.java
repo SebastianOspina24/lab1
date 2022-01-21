@@ -17,10 +17,13 @@ import java.util.logging.Logger;
  */
 public class HostBlackListsValidator {
 
+
     private static final int BLACK_LIST_ALARM_COUNT=5;
      private int ocurrencesCount=0;
      private LinkedList<Integer> blackListOcurrences=new LinkedList<>();
      private int checkedListsCount=0;
+	
+    
     /**
      * Check the given host's IP address in all the available black lists,
      * and report it as NOT Trustworthy when such IP was reported in at least
@@ -31,12 +34,59 @@ public class HostBlackListsValidator {
      * @param ipaddress suspicious host's IP address.
      * @return  Blacklists numbers where the given host's IP address was found.
      */
-    public List<Integer> checkHost(String ipaddress,int min, int max){
+    public List<Integer> checkHost(String ipaddress){
+        
+        LinkedList<Integer> blackListOcurrences=new LinkedList<>();
+        
+        int ocurrencesCount=0;
         
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
         
+        int checkedListsCount=0;
         
-        //skds.getRegisteredServersCount()
+        for (int i=0;i<skds.getRegisteredServersCount() && ocurrencesCount<BLACK_LIST_ALARM_COUNT;i++){
+            checkedListsCount++;
+            
+            if (skds.isInBlackListServer(i, ipaddress)){
+                
+                blackListOcurrences.add(i);
+                
+                ocurrencesCount++;
+            }
+        }
+        
+        if (ocurrencesCount>=BLACK_LIST_ALARM_COUNT){
+            skds.reportAsNotTrustworthy(ipaddress);
+        }
+        else{
+            skds.reportAsTrustworthy(ipaddress);
+        }                
+        
+        LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{checkedListsCount, skds.getRegisteredServersCount()});
+        
+        return blackListOcurrences;
+    }
+    
+    
+    public List<Integer> checkHost(String ipaddress,int cores){
+    	HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
+    	int serverAmount = skds.getRegisteredServersCount();
+    	int groups = (int)Math.ceil((serverAmount/ cores));
+    	Threadblacklistvalidator[] threads = new Threadblacklistvalidator[cores];
+        for(int i =0;i<cores;i++) {
+        	threads[i] = new Threadblacklistvalidator(ipaddress,i*groups,((i+1)*groups)>serverAmount?serverAmount:(i+1)*groups);
+        }
+        for(int i =0;i<cores;i++) {
+        	threads[i].start();
+        }
+        while(checkedListsCount<serverAmount  && ocurrencesCount<BLACK_LIST_ALARM_COUNT) {
+        	for(int i =0;i<cores;i++) {
+        		ocurrencesCount += threads[i].getOcurrencesCount();
+        		checkedListsCount += threads[i].getCheckedListsCount();
+            }
+        }
+        
+        /*skds.getRegisteredServersCount()
         for (int i=min;i< max  && ocurrencesCount<BLACK_LIST_ALARM_COUNT;i++){
             checkedListsCount++;
             
@@ -47,7 +97,7 @@ public class HostBlackListsValidator {
                 ocurrencesCount++;
             }
         }
-        /*
+        
         if (ocurrencesCount>=BLACK_LIST_ALARM_COUNT){
             skds.reportAsNotTrustworthy(ipaddress);
         }
@@ -78,3 +128,5 @@ public class HostBlackListsValidator {
     
     
 }
+
+

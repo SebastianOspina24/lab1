@@ -4,18 +4,12 @@ import main.java.edu.eci.arsw.spamkeywordsdatasource.HostBlacklistsDataSourceFac
 import java.lang.Math;
 public class Threadblacklistvalidator extends Thread{
 	
-	private int threads;
-	private HostBlackListsValidator[] searchThreads;
-	private HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
 	Threadblacklistvalidator(){
 		
 	}
-	
-	Threadblacklistvalidator(int threads,String ipaddress){
-		this.threads = threads;
-		for(int i=0;i<threads;i++)searchThreads[i]=new HostBlackListsValidator(ipaddress,i* Math.ceil((skds.getRegisteredServersCount()/threads)),max);
+	Threadblacklistvalidator(String ipaddress,int min,int max){
+
 	}
-	
 	public void run(){
 		
 	}
