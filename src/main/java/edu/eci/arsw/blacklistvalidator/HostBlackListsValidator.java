@@ -50,7 +50,6 @@ public class HostBlackListsValidator {
             if (skds.isInBlackListServer(i, ipaddress)){
                 
                 blackListOcurrences.add(i);
-                
                 ocurrencesCount++;
             }
         }
@@ -69,35 +68,28 @@ public class HostBlackListsValidator {
     
     
     public List<Integer> checkHost(String ipaddress,int cores){
+    	long start = System.currentTimeMillis();
     	HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
     	int serverAmount = skds.getRegisteredServersCount();
     	int groups = (int)Math.ceil((serverAmount/ cores));
     	Threadblacklistvalidator[] threads = new Threadblacklistvalidator[cores];
         for(int i =0;i<cores;i++) {
-        	threads[i] = new Threadblacklistvalidator(ipaddress,i*groups,((i+1)*groups)>serverAmount?serverAmount:(i+1)*groups);
+        	threads[i] = new Threadblacklistvalidator(ipaddress,i*groups,((i+1)*groups)>serverAmount?serverAmount:(i+1)*groups,skds);
         }
         for(int i =0;i<cores;i++) {
         	threads[i].start();
         }
         while(checkedListsCount<serverAmount  && ocurrencesCount<BLACK_LIST_ALARM_COUNT) {
+        	ocurrencesCount=0;
+        	checkedListsCount=0;
         	for(int i =0;i<cores;i++) {
         		ocurrencesCount += threads[i].getOcurrencesCount();
         		checkedListsCount += threads[i].getCheckedListsCount();
             }
         }
-        
-        /*skds.getRegisteredServersCount()
-        for (int i=min;i< max  && ocurrencesCount<BLACK_LIST_ALARM_COUNT;i++){
-            checkedListsCount++;
-            
-            if (skds.isInBlackListServer(i, ipaddress)){
-                
-                blackListOcurrences.add(i);
-                
-                ocurrencesCount++;
-            }
+        for(int i =0;i<cores;i++) {
+        	blackListOcurrences.addAll(threads[i].getBlackListOcurrences());
         }
-        
         if (ocurrencesCount>=BLACK_LIST_ALARM_COUNT){
             skds.reportAsNotTrustworthy(ipaddress);
         }
@@ -106,7 +98,9 @@ public class HostBlackListsValidator {
         }                
         
         LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{checkedListsCount, skds.getRegisteredServersCount()});
-        */
+        
+        long fin = System.currentTimeMillis();
+        System.out.println("Hilos: "+cores+"   Tiempo duracion: "+(-start+fin));
         return blackListOcurrences;
     }
     

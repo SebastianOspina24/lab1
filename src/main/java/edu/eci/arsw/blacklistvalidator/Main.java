@@ -5,6 +5,7 @@
  */
 package main.java.edu.eci.arsw.blacklistvalidator;
 
+import java.lang.runtime.*;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ public class Main {
     
     public static void main(String a[]){
         HostBlackListsValidator hblv=new HostBlackListsValidator();
-        List<Integer> blackListOcurrences=hblv.checkHost("200.24.34.55");
+        List<Integer> blackListOcurrences=hblv.checkHost("200.24.34.55",1);
         System.out.println("The host was found in the following blacklists:"+blackListOcurrences);
         
     }
