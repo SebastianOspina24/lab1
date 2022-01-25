@@ -3,6 +3,10 @@
 ### Arquitecturas de Software - ARSW
 ## Ejercicio Introducción al paralelismo - Hilos - Caso BlackListSearch
 
+### Integrantes:
+* Juan Sebastián Ospina Calderon
+* María José Torres Nieves
+
 
 ### Dependencias:
 ####   Lecturas:
@@ -77,15 +81,42 @@ Al iniciar el programa ejecute el monitor jVisualVM, y a medida que corran las p
 
 Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tiempo de solución vs. número de hilos. Analice y plantee hipótesis con su compañero para las siguientes preguntas (puede tener en cuenta lo reportado por jVisualVM):
 
+De lo anterior salieron los siguientes resultados:
+* Un hilo:
+![](img/Imagen1.png)
+* 12 hilos:
+![](img/Imagen2.png)
+* 24 hilos:
+![](img/Imagen3.png)
+* 50 hilos:
+![](img/Imagen4.png)
+* 100 hilos:
+![](img/Imagen5.png)
+
+Como agregado, se probó también con 1000 hilos y se obtuvo el siguiente resultado:
+![](img/Imagen6.png)
+
+Al organizar los resultados se armó la siguiente tabla:
+
+![](img/tablaTiempovsHilos.jpeg)
+
+Y la gráfica resultante es la siguiente:
+
+![](img/graficaTiempovsHilos.jpeg)
+
 **Parte IV - Ejercicio Black List Search**
 
 1. Según la [ley de Amdahls](https://www.pugetsystems.com/labs/articles/Estimating-CPU-Performance-using-Amdahls-Law-619/#WhatisAmdahlsLaw?):
 
 	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?. 
 
-2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
+	Con 500 hilos no se logra una verdadera mejora ya que la creación de tantos hilos consumiria más tiempo de lo que se demorarian resolviendo el problema, lo mismo pasa con los 200 hilos; deja de ser efectivo por el tiempo que consume la creación de los hilos.
+
+2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?
+
+	Se observa una reducción de tiempo al usar el doble de hilos dejando ver que para este número es más eficiente usar un numero mayor de hilos que de núcleos.
 
 3. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
 
-
+	Para el primer caso, no existiria mejora ya que al ser solo un hilo por máquina la ley de Amdahls demostraría una baja eficiencia. Mientras que para el otro caso, sí existiria mejora por lo que se estan usando un número eficiente de hilos.
 
