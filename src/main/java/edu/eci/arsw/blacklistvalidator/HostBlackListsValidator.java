@@ -68,7 +68,7 @@ public class HostBlackListsValidator {
     
     
     public List<Integer> checkHost(String ipaddress,int cores){
-    	long start = System.currentTimeMillis();
+    	
     	HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
     	int serverAmount = skds.getRegisteredServersCount();
     	int groups = (int)Math.ceil((serverAmount/ cores));
@@ -76,17 +76,24 @@ public class HostBlackListsValidator {
         for(int i =0;i<cores;i++) {
         	threads[i] = new Threadblacklistvalidator(ipaddress,i*groups,((i+1)*groups)>serverAmount?serverAmount:(i+1)*groups,skds);
         }
+        long start = System.currentTimeMillis();
         for(int i =0;i<cores;i++) {
+        	try {
+				threads[i].join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         	threads[i].start();
         }
-        while(checkedListsCount<serverAmount  && ocurrencesCount<BLACK_LIST_ALARM_COUNT) {
-        	ocurrencesCount=0;
-        	checkedListsCount=0;
+        //while(checkedListsCount<serverAmount  && ocurrencesCount<BLACK_LIST_ALARM_COUNT) {
+        	//ocurrencesCount=0;
+        	//checkedListsCount=0;
         	for(int i =0;i<cores;i++) {
         		ocurrencesCount += threads[i].getOcurrencesCount();
         		checkedListsCount += threads[i].getCheckedListsCount();
             }
-        }
+        //}
         for(int i =0;i<cores;i++) {
         	blackListOcurrences.addAll(threads[i].getBlackListOcurrences());
         }
